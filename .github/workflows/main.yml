@@ -20,12 +20,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install
+          npm install mineflayer-auto-eat
 
       - name: Start bot
         env:
-          SERVER_HOST: play2.eternalzero.cloud
-          SERVER_PORT: 27199
+          SERVER_HOST: craftvn.net
+          SERVER_PORT: 25565
         run: |
           timeout 43200s npm start || true
           
