@@ -1,4 +1,4 @@
-name: CRAFTVN Bot Sursmp
+name: CRAFTVN Join Bot
 
 on:
   push:
@@ -17,15 +17,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
 
       - name: Install dependencies
         run: |
-          npm install mineflayer-auto-eat
+          npm install
 
       - name: Start bot
         env:
           SERVER_HOST: craftvn.net
           SERVER_PORT: 25565
         run: |
+          # 43200s = 12 tiếng, hết giờ thì nó dừng, có lỗi cũng kệ
           timeout 43200s npm start || true
           
