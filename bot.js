@@ -2,7 +2,6 @@
 
 const mineflayer = require('mineflayer')
 const { pathfinder, goals: { GoalXZ } } = require('mineflayer-pathfinder')
-const autoEat = require('mineflayer-auto-eat').plugin
 const pvp = require('mineflayer-pvp').plugin
 
 // ==== CẤU HÌNH SERVER ====
@@ -19,9 +18,9 @@ const NAMES = [
   'xPVP2','CauBeNgoc','MayChemHaTinh','Memaybel','Bomaychaphet',
   'noomn','tretrauminecraft','Phu2k8','LinhDepGai','AnhHangXom',
   'CuongDepTrai','LinhThongThai','HoangHac','SuuTam','KhaiBeDe',
-  'ThanhNien1','ThanhNien2','ThanhNien3','ThanhNien4','ThanhNien5',
+  'Thanh21','TrumPvp2','Bomaylaia3','Tajn4','Memaybelen5',
   'NoobGiau','ProKhongLo','LaiCanh','ThoDanSoi','PlayerVN01',
-  'PlayerVN02','PlayerVN03','PlayerVN04','PlayerVN05','PlayerVN06'
+  'KhaiLocXoay','TrumBamDo','VietNamga','Gioithivoday','PlrVN06'
 ].slice(0, MAX_BOTS)
 
 function wait (ms) {
@@ -80,18 +79,10 @@ function createBot (name) {
   })
 
   bot.loadPlugin(pathfinder)
-  bot.loadPlugin(autoEat)
   bot.loadPlugin(pvp)
 
   bot.once('spawn', async () => {
     console.log(`[${name}] joined!`)
-
-    // auto ăn cho đỡ chết đói
-    bot.autoEat.options = {
-      priority: 'foodPoints',
-      startAt: 14,
-      bannedFood: []
-    }
 
     setupCombat(bot)
     wander(bot)
