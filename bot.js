@@ -1,4 +1,4 @@
-// bot.js — 30 bots auto /register + /login + /server sursmp
+// bot.js — 30 bots auto /register + /login + /server sursmp + auto reconnect
 
 const mineflayer = require('mineflayer')
 const { pathfinder, goals: { GoalXZ } } = require('mineflayer-pathfinder')
@@ -10,21 +10,27 @@ const SERVER_PORT = Number(process.env.SERVER_PORT || 25565)
 const AUTH_MODE   = process.env.AUTH_MODE || 'offline'
 
 // Số lượng bot & delay join
-const MAX_BOTS      = 30               // khoảng 30 con
-const JOIN_DELAY_MS = 5000             // 5s 1 con, từ từ, không nhanh
+const MAX_BOTS        = 30               // khoảng 30 con
+const JOIN_DELAY_MS   = 10000            // 10s 1 con cho chậm bớt, tránh host chặn
+const RECONNECT_MINMS = 30000            // min 30s
+const RECONNECT_MAXMS = 60000            // max 60s
 
 // Danh sách tên bot (ít nhất 30 tên)
 const NAMES = [
   'xPVP2','CauBeNgoc','MayChemHaTinh','Memaybel','Bomaychaphet',
   'noomn','tretrauminecraft','Phu2k8','LinhDepGai','AnhHangXom',
   'CuongDepTrai','LinhThongThai','HoangHac','SuuTam','KhaiBeDe',
-  'Thanh21','TrumPvp2','Bomaylaia3','Tajn4','Memaybelen5',
+  'ThanhNien1','ThanhNien2','ThanhNien3','ThanhNien4','ThanhNien5',
   'NoobGiau','ProKhongLo','LaiCanh','ThoDanSoi','PlayerVN01',
-  'KhaiLocXoay','TrumBamDo','VietNamga','Gioithivoday','PlrVN06'
+  'PlayerVN02','PlayerVN03','PlayerVN04','PlayerVN05','PlayerVN06'
 ].slice(0, MAX_BOTS)
 
 function wait (ms) {
   return new Promise(res => setTimeout(res, ms))
+}
+
+function randomInt (min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 // PvP combat setup: attack mobs + players (có cũng được, không thích thì xoá)
@@ -54,14 +60,14 @@ function wander (bot) {
 // Sau khi spawn: /register → /login → /server sursmp
 async function handleAuthAndServer (bot) {
   try {
-    // Đợi server load xong, tránh spam quá sớm
-    await wait(4000)
+    // Đợi server load + gửi bảng đăng nhập xong, tránh spam sớm
+    await wait(5000)
     bot.chat('/register 12345678 12345678')
 
-    await wait(2500)
+    await wait(4000)
     bot.chat('/login 12345678')
 
-    await wait(2500)
+    await wait(4000)
     bot.chat('/server sursmp')
 
     // Sau khi vào server con thì cứ đi linh tinh
@@ -70,7 +76,10 @@ async function handleAuthAndServer (bot) {
   }
 }
 
-function createBot (name) {
+// Tạo bot + gắn event, nếu bị end/kicked thì tự reconnect
+function spawnBot (name) {
+  console.log(`[${name}] spawning new instance...`)
+
   const bot = mineflayer.createBot({
     host: SERVER_HOST,
     port: SERVER_PORT,
@@ -81,16 +90,30 @@ function createBot (name) {
   bot.loadPlugin(pathfinder)
   bot.loadPlugin(pvp)
 
-  bot.once('spawn', async () => {
+  bot.once('spawn', () => {
     console.log(`[${name}] joined!`)
-
     setupCombat(bot)
     wander(bot)
     handleAuthAndServer(bot)
   })
 
-  bot.on('kicked', r => console.log(`[${name}] kicked:`, r))
-  bot.on('error', e => console.log(`[${name}] error:`, e))
+  bot.on('kicked', (reason, loggedIn) => {
+    console.log(`[${name}] kicked: ${reason}`)
+    const delay = randomInt(RECONNECT_MINMS, RECONNECT_MAXMS)
+    console.log(`[${name}] sẽ thử reconnect sau ${Math.floor(delay / 1000)}s...`)
+    setTimeout(() => spawnBot(name), delay)
+  })
+
+  bot.on('end', reason => {
+    console.log(`[${name}] end: ${reason}`)
+    const delay = randomInt(RECONNECT_MINMS, RECONNECT_MAXMS)
+    console.log(`[${name}] sẽ thử reconnect sau ${Math.floor(delay / 1000)}s...`)
+    setTimeout(() => spawnBot(name), delay)
+  })
+
+  bot.on('error', e => {
+    console.log(`[${name}] error:`, e)
+  })
 
   return bot
 }
@@ -98,8 +121,9 @@ function createBot (name) {
 // ==== TẠO NHIỀU BOT JOIN TỪ TỪ ====
 ;(async () => {
   for (let i = 0; i < NAMES.length; i++) {
-    createBot(NAMES[i])
-    console.log(`Đang spawn bot thứ ${i + 1}/${NAMES.length} (${NAMES[i]})...`)
+    const name = NAMES[i]
+    console.log(`Đang spawn bot thứ ${i + 1}/${NAMES.length} (${name}) sau ${JOIN_DELAY_MS}ms...`)
+    spawnBot(name)
     await wait(JOIN_DELAY_MS)
   }
 })()
