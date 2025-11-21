@@ -1,30 +1,31 @@
-name: Join
+name: CRAFTVN Bot Sursmp
 
 on:
-  workflow_dispatch:  # để bạn bấm "Run workflow" bằng tay
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  run-bots:
+  run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 360   # tối đa 15 phút
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18'
 
-      - name: Install deps
-        run: npm install
-
-      - name: Start Dream & Marlow for 10 minutes
-        env:
-          SERVER_HOST: craftvn.net  # đổi thành IP / domain server bạn
-          SERVER_PORT: 25565                    # đổi theo port server
-          AUTH_MODE: offline                     # hoặc 'microsoft' nếu xài acc real
+      - name: Install dependencies
         run: |
-          timeout 60000s npm start || true
+          npm install mineflayer mineflayer-pathfinder mineflayer-auto-eat mineflayer-pvp
+
+      - name: Start bot
+        env:
+          SERVER_HOST: play2.eternalzero.cloud
+          SERVER_PORT: 27199
+        run: |
+          timeout 43200s npm start || true
           
