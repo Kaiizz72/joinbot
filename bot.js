@@ -5,8 +5,8 @@ const { pathfinder, goals: { GoalXZ } } = require('mineflayer-pathfinder')
 const pvp = require('mineflayer-pvp').plugin
 
 // ==== CẤU HÌNH SERVER ====
-const SERVER_HOST = process.env.SERVER_HOST || 'craftvn.net'
-const SERVER_PORT = Number(process.env.SERVER_PORT || 25565)
+const SERVER_HOST = process.env.SERVER_HOST || 'node1.lumine.asia'
+const SERVER_PORT = Number(process.env.SERVER_PORT || 25675)
 const AUTH_MODE   = process.env.AUTH_MODE || 'offline'
 
 // Số lượng bot & delay join
