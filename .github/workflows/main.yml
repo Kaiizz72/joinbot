@@ -24,8 +24,8 @@ jobs:
 
       - name: Start bot
         env:
-          SERVER_HOST: craftvn.net
-          SERVER_PORT: 25565
+          SERVER_HOST: node1.lumine.asia
+          SERVER_PORT: 25675
         run: |
           # 43200s = 12 tiếng
           timeout 43200s npm start || true
